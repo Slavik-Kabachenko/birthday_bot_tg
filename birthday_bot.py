@@ -6,7 +6,7 @@ import threading
 import time
 
 # 🔑 Токен бота
-TOKEN = "7516740132:AAHSFRZtQ77HiA5Bp_st-7PA8_-mZ7E3dJU"
+TOKEN = "7563338858:AAFRqa2583ScPdIf4G76Wgsy8wP4B0_3O-Y"
 bot = telebot.TeleBot(TOKEN)
 
 # 📅 Місяці
