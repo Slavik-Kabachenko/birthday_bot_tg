@@ -7,19 +7,23 @@ import time
 
 # 🔑 Токен бота
 TOKEN = "7563338858:AAFRqa2583ScPdIf4G76Wgsy8wP4B0_3O-Y"
-bot = telebot.TeleBot(TOKEN)
+bot = telebot.TeleBot(TOKEN, parse_mode='HTML')
 
-# 📅 Місяці
+# Глобальний список групових чатів для привітань
+group_ids = [-1001492603430]  # Заміни на реальні ID груп
+
+# 🗕 Місяці
 months = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
           "Липень", "Серпень", "Вересень", "Жовтень", "Листопад", "Грудень"]
 
-# 🗂 Підключення до бази
+# 💂🏻 Підключення до бази
 conn = sqlite3.connect("birthdays.db", check_same_thread=False)
 cursor = conn.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS birthdays (
-                    chat_id INTEGER PRIMARY KEY,
+                    chat_id INTEGER,
                     username TEXT,
-                    date TEXT)''')
+                    date TEXT,
+                    PRIMARY KEY (chat_id, username))''')
 conn.commit()
 
 user_data = {}
@@ -32,7 +36,7 @@ def save_birthday(chat_id, username, date):
 
 # 📌 Функція для отримання списку днів народження
 def get_birthdays():
-    cursor.execute("SELECT username, date FROM birthdays")
+    cursor.execute("SELECT chat_id, username, date FROM birthdays")
     return cursor.fetchall()
 
 # 📌 Функція для видалення дня народження
@@ -70,24 +74,38 @@ def birthday_checker():
     while True:
         now = datetime.now()
         current_date = f"{now.day} {months[now.month - 1]}"
-        if now.hour == 9:  # Перевіряти о 9:00
+        if now.hour == 12 and now.minute == 45:  # Перевіряти щодня о 12:00
             cursor.execute("SELECT chat_id, username FROM birthdays WHERE date = ?", (current_date,))
             for chat_id, username in cursor.fetchall():
-                bot.send_message(chat_id, f"🎉 Вітаємо @{username} з Днем Народження! 🎂")
-        time.sleep(3600)  # Перевіряти щогодини
+                try:
+                    message = f"Команда TURBO, cьогодні вітає з днем народженням @{username} 🥂🎉" if username else "Команда TURBO, cьогодні вітає з днем народженням 🥂🎉"
 
-# 🏁 Обробник команди /start
+                    # Надсилання у групи
+                    for group_id in group_ids:
+                        bot.send_message(group_id, message, disable_notification=True)
+
+                    # Приватне привітання
+                    if chat_id > 0:  # Приватний чат
+                        bot.send_message(chat_id, message)
+
+                    print(f"[INFO] Привітання відправлено у чат {chat_id} для @{username}")
+
+                except Exception as e:
+                    print(f"[ERROR] Помилка надсилання повідомлення: {e}")
+        time.sleep(60)  # Перевіряти щохвилини
+
+# 📺 Обробник команди /start
 @bot.message_handler(commands=['start'])
 def start_conversation(message):
     bot.send_message(message.chat.id, "Привіт! Обери дію:", reply_markup=main_menu())
 
-# 📜 Обробник кнопки "📅 Список днів народження"
+# 🔜 Обробник кнопки "📅 Список днів народження"
 @bot.message_handler(func=lambda message: message.text == "📅 Список днів народження")
 def list_birthdays(message):
     birthday_list = get_birthdays()
     if birthday_list:
         response = "🎂 Список днів народження:\n"
-        for username, date in birthday_list:
+        for chat_id, username, date in birthday_list:
             response += f"@{username}: {date}\n"
         bot.send_message(message.chat.id, response)
     else:
