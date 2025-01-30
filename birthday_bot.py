@@ -74,7 +74,7 @@ def birthday_checker():
     while True:
         now = datetime.now()
         current_date = f"{now.day} {months[now.month - 1]}"
-        if now.hour == 10 and now.minute == 30:  # Перевіряти щодня о 12:00
+        if now.hour == 10 and now.minute == 0:  # Перевіряти щодня о 10:00
             cursor.execute("SELECT chat_id, username FROM birthdays WHERE date = ?", (current_date,))
             for chat_id, username in cursor.fetchall():
                 try:
