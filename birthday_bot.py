@@ -1,16 +1,18 @@
+import os
 import telebot
 from telebot.types import ReplyKeyboardMarkup, KeyboardButton
 from datetime import datetime
+from doteny import load_dotenv
 import sqlite3
 import threading
 import time
 
 # 🔑 Токен бота
-TOKEN = "7563338858:AAFCOxQiQqoCrQS252F0WM8--PFoTyLxlYM"
+TOKEN = os.getenv("API_KEY")
 bot = telebot.TeleBot(TOKEN, parse_mode='HTML')
 
 # Глобальний список групових чатів для привітань
-group_ids = [-1001492603430]  # Заміни на реальні ID груп
+group_ids = [os.getenv("group_ids")]  # Заміни на реальні ID груп
 
 # 🗕 Місяці
 months = ["Січень", "Лютий", "Березень", "Квітень", "Травень", "Червень",
