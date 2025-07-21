@@ -6,7 +6,7 @@ import threading
 import time
 
 # 🔑 Токен бота
-TOKEN = "7563338858:AAFRqa2583ScPdIf4G76Wgsy8wP4B0_3O-Y"
+TOKEN = "7563338858:AAFCOxQiQqoCrQS252F0WM8--PFoTyLxlYM"
 bot = telebot.TeleBot(TOKEN, parse_mode='HTML')
 
 # Глобальний список групових чатів для привітань
